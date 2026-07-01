@@ -1,0 +1,44 @@
+# First, install the required library via your terminal:
+# pip install openai
+
+# import os
+from openai import OpenAI
+
+# Initialize the OpenAI client (replace 'YOUR_API_KEY' with your actual secret key)
+# For security, you can also set this as an environment variable: os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key="YOUR_API_KEY")
+
+# This list holds the conversation history so the bot "remembers" previous messages
+conversation_history = [
+    {"role": "system", "content": "You are a helpful, friendly, and knowledgeable AI assistant."}
+]
+
+print("Chatbot: Hi! I'm ready to chat. Type 'quit' or 'exit' to end the conversation.")
+
+while True:
+    user_input = input("\nYou: ")
+    
+    # Check for exit conditions
+    if user_input.lower() in ["quit", "exit"]:
+        print("Chatbot: Goodbye! Have a great day.")
+        break
+    
+    # Append the user's message to the conversation history
+    conversation_history.append({"role": "user", "content": user_input})
+    
+    try:
+        # Generate the response using the GPT model
+        response = client.chat.completions.create(
+            model="gpt-4o",  # You can also use 'gpt-4o-mini' for a faster/cheaper model
+            messages=conversation_history
+        )
+        
+        # Extract the bot's reply
+        bot_response = response.choices[0].message.content
+        print(f"Chatbot: {bot_response}")
+        
+        # Append the bot's reply to the history so it remembers the context in the next loop
+        conversation_history.append({"role": "assistant", "content": bot_response})
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
